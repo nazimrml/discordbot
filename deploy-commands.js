@@ -15,6 +15,10 @@ const commands = [
   new SlashCommandBuilder()
     .setName("rizz")
     .setDescription("Get a rizz or dark joke"),
+
+  new SlashCommandBuilder()
+    .setName("joke")
+    .setDescription("Get a random joke"),
 ].map(cmd => cmd.toJSON());
 
 // ===== REST CLIENT =====

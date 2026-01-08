@@ -8,6 +8,15 @@ const TARGET_ROLE = "1458892702862278766";
 const ALT_VC_ID = "1438925257011499221";
 const WATCH_CHANNEL = "1438917726050451489";
 const BANNED_KEYWORDS = ["dick", "gay", "shit", "pussy", "fuck", "toilet", "sex", "corn", "porn", "masterbaiter", "masterbait", "children"];
+const CHANNEL_ID = "1438917726050451489"; // Channel to send jokes in
+
+const jokes = [
+  "Why don’t programmers like nature? Too many bugs.",
+  "Why did the computer get cold? It forgot to close its Windows.",
+  "Why do Java developers wear glasses? Because they don’t C#.",
+  "I told my computer I needed a break, and it froze.",
+  "Why was the JavaScript developer sad? Because he didn’t know how to null his feelings."
+];
 
 let botActive = false; // Bot is off by default
 
@@ -19,6 +28,18 @@ const client = new Client({
     GatewayIntentBits.GuildVoiceStates,
     GatewayIntentBits.MessageContent,
   ],
+});
+
+client.once("ready", async () => {
+  console.log(`Logged in as ${client.user.tag}`);
+
+  const channel = await client.channels.fetch(CHANNEL_ID);
+  if (!channel) return console.log("Channel not found");
+
+  setInterval(() => {
+    const joke = jokes[Math.floor(Math.random() * jokes.length)];
+    channel.send(joke);
+  }, 10000); // 10 seconds
 });
 
 // ===== SLASH COMMAND HANDLER =====

@@ -59,7 +59,7 @@ client.on("interactionCreate", async (interaction) => {
       "You have 0% chance at this rizz 😎",
     ];
     const joke = jokes[Math.floor(Math.random() * jokes.length)];
-    return interaction.reply({ content: joke, flags: 64 });
+    return interaction.reply({ content: joke });
   }
   // Joke command
   if (commandName === "joke") {

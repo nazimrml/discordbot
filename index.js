@@ -29,7 +29,7 @@ const client = new Client({
   ],
 });
 
-client.once("ready", async () => {
+client.once("clientReady", async () => {
   console.log(`Logged in as ${client.user.tag}`);
 });
 
@@ -102,7 +102,7 @@ setInterval(() => {
 }, 1000);
 
 // ===== READY =====
-client.once("ready", () => {
+client.once("clientReady", () => {
   console.log(`✅ Logged in as ${client.user.tag}`);
 });
 

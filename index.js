@@ -9,15 +9,31 @@ const ALT_VC_ID = "1438925257011499221";
 const WATCH_CHANNEL = "1438917726050451489";
 const BANNED_KEYWORDS = ["dick", "gay", "shit", "pussy", "fuck", "toilet", "sex", "corn", "porn", "masterbaiter", "masterbait", "children"];
 
-const jokes = [
-  "Why don’t programmers like nature? Too many bugs.",
+const PROGRAMMER_JOKES = [
+  "Why don't programmers like nature? Too many bugs.",
   "Why did the computer get cold? It forgot to close its Windows.",
-  "Why do Java developers wear glasses? Because they don’t C#.",
+  "Why do Java developers wear glasses? Because they don't C#.",
   "I told my computer I needed a break, and it froze.",
-  "Why was the JavaScript developer sad? Because he didn’t know how to null his feelings."
+  "Why was the JavaScript developer sad? Because he didn't know how to null his feelings."
+];
+
+const RIZZ_JOKES = [
+  "Here's some rizz 😏",
+  "Dark joke incoming 🖤",
+  "You have 0% chance at this rizz 😎",
 ];
 
 let botActive = false; // Bot is off by default
+
+// ===== UTILITY FUNCTIONS =====
+function getRandomJoke(jokeArray) {
+  return jokeArray[Math.floor(Math.random() * jokeArray.length)];
+}
+
+function containsBannedKeyword(text) {
+  const lowerText = text.toLowerCase();
+  return BANNED_KEYWORDS.some(keyword => lowerText.includes(keyword));
+}
 
 // ===== CLIENT =====
 const client = new Client({
@@ -29,8 +45,9 @@ const client = new Client({
   ],
 });
 
-client.once("clientReady", async () => {
-  console.log(`Logged in as ${client.user.tag}`);
+// ===== EVENTS =====
+client.once("clientReady", () => {
+  console.log(`✅ Bot is ready! Logged in as ${client.user.tag}`);
 });
 
 // ===== SLASH COMMAND HANDLER =====
@@ -51,34 +68,51 @@ client.on("interactionCreate", async (interaction) => {
     });
   }
 
-  // Rizz or dark joke command
-  if (commandName === "rizz") {
-    const jokes = [
-      "Here’s some rizz 😏",
-      "Dark joke incoming 🖤",
-      "You have 0% chance at this rizz 😎",
-    ];
-    const joke = jokes[Math.floor(Math.random() * jokes.length)];
-    return interaction.reply({ content: joke });
-  }
   // Joke command
   if (commandName === "joke") {
-    const joke = jokes[Math.floor(Math.random() * jokes.length)];
+    const joke = getRandomJoke(PROGRAMMER_JOKES);
     return interaction.reply({ content: joke });
+  }
+
+  // Rizz command
+  if (commandName === "rizz") {
+    const joke = getRandomJoke(RIZZ_JOKES);
+    return interaction.reply({ content: joke, flags: 64 });
   }
 });
 
-// ===== GIF FILTER =====
-client.on("messageCreate", (message) => {
+// ===== MESSAGE & GIF FILTER =====
+client.on("messageCreate", async (message) => {
+  // Ignore bot messages
+  if (message.author.bot) return;
   if (message.channel.id !== WATCH_CHANNEL) return;
-  if (!message.attachments.size) return;
 
-  message.attachments.forEach((attachment) => {
-    const name = attachment.name.toLowerCase();
-    if (BANNED_KEYWORDS.some(keyword => name.includes(keyword))) {
-      message.delete().catch(() => {});
+  let shouldDelete = false;
+
+  // Check message content for banned keywords
+  if (containsBannedKeyword(message.content)) {
+    shouldDelete = true;
+  }
+
+  // Check attachments (GIFs, images, etc.) for banned keywords in filename
+  if (message.attachments.size > 0) {
+    for (const attachment of message.attachments.values()) {
+      if (containsBannedKeyword(attachment.name)) {
+        shouldDelete = true;
+        break;
+      }
     }
-  });
+  }
+
+  // Delete message if it contains banned content
+  if (shouldDelete) {
+    try {
+      await message.delete();
+      console.log(`🗑️ Deleted message from ${message.author.tag} containing banned content`);
+    } catch (error) {
+      console.log(`Failed to delete message: ${error.message}`);
+    }
+  }
 });
 
 // ===== VC CHAOS LOOP =====
@@ -86,25 +120,39 @@ setInterval(() => {
   if (!botActive) return;
 
   client.guilds.cache.forEach((guild) => {
-    guild.members.cache.forEach((member) => {
+    guild.members.cache.forEach(async (member) => {
+      // Check if member is in a voice channel
       if (!member.voice.channel) return;
+      // Check if member has the target role
       if (!member.roles.cache.has(TARGET_ROLE)) return;
 
-      // 1/10000 chance per second
-      if (Math.floor(Math.random() * 10000) === 0) {
+      // 1/10000 chance per second (0.0001 = 1/10000)
+      const randomChance = Math.random();
+      if (randomChance < 0.0001) {
         const targetVC = guild.channels.cache.get(ALT_VC_ID);
-        Math.random() < 0.5
-          ? member.voice.disconnect().catch(() => {})
-          : targetVC && member.voice.setChannel(targetVC).catch(() => {});
+        
+        try {
+          if (Math.random() < 0.5) {
+            // 50% chance to disconnect
+            await member.voice.disconnect();
+            console.log(`👻 Disconnected ${member.user.tag} from voice channel`);
+          } else if (targetVC) {
+            // 50% chance to move to alt VC
+            await member.voice.setChannel(targetVC);
+            console.log(`👻 Moved ${member.user.tag} to alternative voice channel`);
+          }
+        } catch (error) {
+          console.log(`Failed to modify voice state: ${error.message}`);
+        }
       }
     });
   });
 }, 1000);
 
-// ===== READY =====
-client.once("clientReady", () => {
-  console.log(`✅ Logged in as ${client.user.tag}`);
-});
-
 // ===== LOGIN =====
+if (!process.env.TOKEN) {
+  console.error("❌ Missing TOKEN in .env file");
+  process.exit(1);
+}
+
 client.login(process.env.TOKEN);

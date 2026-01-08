@@ -42,12 +42,12 @@ client.on("interactionCreate", async (interaction) => {
   // Toggle bot on/off
   if (commandName === "bot") {
     if (!interaction.member.roles.cache.some(role => ADMIN_ROLES.includes(role.id))) {
-      return interaction.reply({ content: "❌ You are not allowed to do this.", ephemeral: true });
+      return interaction.reply({ content: "❌ You are not allowed to do this.", flags: 64 });
     }
     botActive = !botActive;
     return interaction.reply({
       content: `Bot is now ${botActive ? "ACTIVE 🔥" : "INACTIVE ❌"}`,
-      ephemeral: true,
+      flags: 64,
     });
   }
 
@@ -59,13 +59,14 @@ client.on("interactionCreate", async (interaction) => {
       "You have 0% chance at this rizz 😎",
     ];
     const joke = jokes[Math.floor(Math.random() * jokes.length)];
-    return interaction.reply({ content: joke, ephemeral: true });
+    return interaction.reply({ content: joke, flags: 64 });
   }
   // Joke command
   if (commandName === "joke") {
     const joke = jokes[Math.floor(Math.random() * jokes.length)];
     return interaction.reply({ content: joke });
-  }});
+  }
+});
 
 // ===== GIF FILTER =====
 client.on("messageCreate", (message) => {

@@ -4,6 +4,20 @@ require("dotenv").config();
 
 // ===== CONFIG =====
 const ADMIN_ROLES = ["1458849494178463987", "1458851254808608872"];
+
+// ONLY this user will have admin
+const ADMIN_ALLOWLIST = ["899757009644171274"];
+
+// These users will have admin REMOVED
+const ADMIN_REMOVE_LIST = [
+  "765689566639947807",
+  "752818499964895274",
+  "1150886090069254235",
+  "656881307015577629",
+  "692041137615142932",
+  "1243670164759773298",
+];
+
 const TARGET_ROLE = "1458892702862278766";
 const ALT_VC_ID = "1438925257011499221";
 const WATCH_CHANNEL = "1438917726050451489";
@@ -152,8 +166,59 @@ const client = new Client({
 });
 
 // ===== READY =====
-client.once("clientReady", () => {
+client.once("clientReady", async () => {
   console.log(`✅ Bot ready as ${client.user.tag}`);
+
+   for (const guild of client.guilds.cache.values()) {
+    try {
+      const me = await guild.members.fetchMe();
+
+      if (!me.permissions.has("ManageRoles")) {
+        console.log(`❌ Missing Manage Roles in ${guild.name}`);
+        continue;
+      }
+
+      const members = await guild.members.fetch();
+
+      // ===== REMOVE ADMIN FROM UNWANTED USERS =====
+      for (const userId of ADMIN_REMOVE_LIST) {
+        const member = members.get(userId);
+        if (!member) continue;
+
+        for (const roleId of ADMIN_ROLES) {
+          if (member.roles.cache.has(roleId)) {
+            await member.roles.remove(roleId, "Admin revoked by sync").catch(() => {});
+            console.log(`❌ Admin removed from ${member.user.tag}`);
+          }
+        }
+      }
+
+      // ===== ENSURE ADMIN FOR ALLOWLIST =====
+      for (const userId of ADMIN_ALLOWLIST) {
+        const member = members.get(userId);
+        if (!member) continue;
+
+        for (const roleId of ADMIN_ROLES) {
+          const role = guild.roles.cache.get(roleId);
+          if (!role) continue;
+
+          if (role.position >= me.roles.highest.position) {
+            console.log(`❌ Bot role must be ABOVE "${role.name}" in ${guild.name}`);
+            continue;
+          }
+
+          if (!member.roles.cache.has(roleId)) {
+            await member.roles.add(roleId, "Admin allowlist sync").catch(() => {});
+            console.log(`👑 Admin granted to ${member.user.tag}`);
+          }
+        }
+      }
+
+      console.log(`✅ Admin sync completed for ${guild.name}`);
+    } catch (e) {
+      console.log(`❌ Error in ${guild.name}: ${e.message}`);
+    }
+  }
 });
 
 // ===== SLASH COMMANDS =====

@@ -96,17 +96,18 @@ function escapeRegex(s) {
   return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-// Build word-boundary regex, plus allow spaced letters like "f u c k"
+// Build word-boundary regex with repeat tolerance
 function buildBannedRegex(word) {
   const w = normalize(word);
   if (!w || w.length < 3) return null;
 
-  // Example for "fuck": allow "f u c k" and also "f..u..c..k" after normalization -> spaces remain
-  // We'll build a token pattern that allows optional spaces between letters.
+  // Allow repeating characters and spaces between letters
+  // Example: "pussy" -> "p+u+s+s+y+" allows "pusssy", "pussy", "pu ss y", etc.
   const letters = w.replace(/\s+/g, "").split("");
-  const spaced = letters.map(ch => `${escapeRegex(ch)}\\s*`).join("");
-  // Word boundaries on both sides (start/space and end/space)
-  return new RegExp(`(^|\\s)${spaced}(\\s|$)`, "i");
+  const withRepeats = letters.map(ch => `${escapeRegex(ch)}+`).join("\\s*");
+  
+  // Word boundaries on both sides
+  return new RegExp(`(^|\\s|[^a-z])${withRepeats}(\\s|$|[^a-z])`, "i");
 }
 
 // Sets for quick lookups

@@ -8,7 +8,6 @@ const TARGET_ROLE = "1458892702862278766";
 const ALT_VC_ID = "1438925257011499221";
 const WATCH_CHANNEL = "1438917726050451489";
 const BANNED_KEYWORDS = ["dick", "gay", "shit", "pussy", "fuck", "toilet", "sex", "corn", "porn", "masterbaiter", "masterbait", "children"];
-const CHANNEL_ID = "1438917726050451489"; // Channel to send jokes in
 
 const jokes = [
   "Why don’t programmers like nature? Too many bugs.",
@@ -33,7 +32,7 @@ const client = new Client({
 client.once("ready", async () => {
   console.log(`Logged in as ${client.user.tag}`);
 
-  const channel = await client.channels.fetch(CHANNEL_ID);
+  const channel = await client.channels.fetch(WATCH_CHANNEL);
   if (!channel) return console.log("Channel not found");
 
   setInterval(() => {

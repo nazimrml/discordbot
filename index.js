@@ -65,11 +65,26 @@ const SAFE_WORDS = [
 
 // ===== JOKES =====
 const PROGRAMMER_JOKES = [
-  "Why don't programmers like nature? Too many bugs.",
-  "Why did the computer get cold? It forgot to close its Windows.",
-  "Why do Java developers wear glasses? Because they don't C#.",
-  "I told my computer I needed a break, and it froze.",
-  "Why was the JavaScript developer sad? Because he didn't know how to null his feelings.",
+  "Sometimes I think back on all the people I've lost and remember why I stopped being a tour guide.",
+  "Give a man a match, and he'll be warm for a few hours. Set him on fire, and he'll be warm for the rest of his life.",
+  "You don't need a parachute to go skydiving. You need a parachute to go skydiving twice.",
+  "My grandfather said my generation relies too much on the latest technology. I called him a hypocrite and unplugged his life support.",
+  "I'll never forget my father's last words to me just before he died: 'Are you sure you fixed the brakes?'",
+  "My senior relatives liked to tease me at weddings, saying things like, 'You'll be next!' But they stopped after I started saying that to them at funerals.",
+  "Happy 70th birthday. At last, you can live undisturbed by life insurance agents!",
+  "I started crying when Dad was cutting onions. Onions was such a good hamster.",
+  "I hope I die peacefully in my sleep like my mother. Not screaming like her passengers.",
+  "Today was the worst day of my life. My ex got hit by a school bus, and I lost my job as a bus driver.",
+  "Why is it that if you donate one kidney, people love you, but if you donate five kidneys, they call the police?",
+  "I was playing fantasy football with my friend, and he said, 'Let's make this interesting.' So we stopped playing fantasy football.",
+  "I have a stepladder because my real ladder left when I was just a kid.",
+  "I'm not completely useless. I make a fantastic bad example.",
+  "A supernova is a lot like Hollywood. Both are where stars die.",
+  "I threw a boomerang a few years ago. Now I live in constant fear.",
+  "My last date with my ex-girlfriend went terribly. It's almost like she didn't want to celebrate the two-year anniversary of when she dumped me!",
+  "How'd I learn my rank among my siblings? My mom handed me the camera for every family photo.",
+  "My parents raised me as an only child, which really pissed off my sister.",
+  "My mother told me, 'One man's trash is another man's treasure.' Terrible way to learn I'm adopted.",
 ];
 
 const RIZZ_JOKES = [
@@ -166,10 +181,9 @@ const client = new Client({
 });
 
 // ===== READY =====
-client.once("clientReady", async () => {
-  console.log(`✅ Bot ready as ${client.user.tag}`);
-
-   for (const guild of client.guilds.cache.values()) {
+// ===== ADMIN SYNC FUNCTION =====
+async function syncAdminRoles() {
+  for (const guild of client.guilds.cache.values()) {
     try {
       const me = await guild.members.fetchMe();
 
@@ -219,6 +233,12 @@ client.once("clientReady", async () => {
       console.log(`❌ Error in ${guild.name}: ${e.message}`);
     }
   }
+}
+
+// ===== READY =====
+client.once("clientReady", async () => {
+  console.log(`✅ Bot ready as ${client.user.tag}`);
+  await syncAdminRoles();
 });
 
 // ===== SLASH COMMANDS =====
@@ -248,6 +268,15 @@ client.on("interactionCreate", async (interaction) => {
       content: RIZZ_JOKES[Math.floor(Math.random() * RIZZ_JOKES.length)],
       flags: 64,
     });
+  }
+
+  if (interaction.commandName === "update") {
+    if (!ADMIN_ALLOWLIST.includes(interaction.user.id)) {
+      return interaction.reply({ content: "❌ You don't have permission", flags: 64 });
+    }
+    await interaction.reply({ content: "⏳ Syncing admin roles...", flags: 64 });
+    await syncAdminRoles();
+    return interaction.followUp({ content: "✅ Admin sync completed", flags: 64 });
   }
 });
 

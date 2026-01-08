@@ -17,6 +17,10 @@ const commands = [
     .setDescription("Get a rizz or dark joke"),
 
   new SlashCommandBuilder().setName("joke").setDescription("Get a random joke"),
+
+  new SlashCommandBuilder()
+    .setName("update")
+    .setDescription("Sync admin roles (allowlist only)"),
 ].map((cmd) => cmd.toJSON());
 
 // ===== REST CLIENT =====

@@ -31,14 +31,6 @@ const client = new Client({
 
 client.once("ready", async () => {
   console.log(`Logged in as ${client.user.tag}`);
-
-  const channel = await client.channels.fetch(WATCH_CHANNEL);
-  if (!channel) return console.log("Channel not found");
-
-  setInterval(() => {
-    const joke = jokes[Math.floor(Math.random() * jokes.length)];
-    channel.send(joke);
-  }, 10000); // 10 seconds
 });
 
 // ===== SLASH COMMAND HANDLER =====
@@ -69,7 +61,11 @@ client.on("interactionCreate", async (interaction) => {
     const joke = jokes[Math.floor(Math.random() * jokes.length)];
     return interaction.reply({ content: joke, ephemeral: true });
   }
-});
+  // Joke command
+  if (commandName === "joke") {
+    const joke = jokes[Math.floor(Math.random() * jokes.length)];
+    return interaction.reply({ content: joke });
+  }});
 
 // ===== GIF FILTER =====
 client.on("messageCreate", (message) => {

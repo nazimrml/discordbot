@@ -7,7 +7,37 @@ const ADMIN_ROLES = ["1458849494178463987","1458851254808608872"];
 const TARGET_ROLE = "1458892702862278766";
 const ALT_VC_ID = "1438925257011499221";
 const WATCH_CHANNEL = "1438917726050451489";
-const BANNED_KEYWORDS = ["dick", "gay", "shit", "pussy", "fuck", "toilet", "sex", "corn", "porn", "masterbaiter", "masterbait", "children"];
+const BANNED_KEYWORDS = ["dick", "gay", "shit", "pussy", "fuck", "toilet", "sex", "corn", "porn", "masterbaiter", "masterbait", "children", "balls", "cock", "ass", "tits", "boobs", "nudes", "nude", "naked", "horny", "slut", "whore", "bitch", "cunt", "jerk", "suck", "cum", "pee", "piss", "fart", "butt", "butthole", "damn", "hell", "bastard", "asshole", "douche", "dildo", "vibrator", "orgasm", "creampie", "hentai", "tentacle", "bestiality", "zoophilia", "incest", "rape", "pedophilia", "loli", "shota", "trap", "femboy", "sissy", "bondage", "bdsm", "whip", "chain", "slave", "master", "daddy", "mommy", "daughter", "son", "brother", "sister", "cousin", "uncle", "aunt", "threesome", "foursome", "gangbang", "bukake", "glory", "blowjob", "handjob", "footjob", "deepthroat", "squirt", "anal", "fisting", "prolapse", "scat", "watersports", "urolagnia", "necrophilia", 
+  // Obfuscated versions
+  "f*ck", "f-ck", "f_ck", "fu ck", "f4ck", "f@ck", "fcck", "fvck", "phuck", "sh*t", "sh-t", "sh1t", "sh!t", "p*ssy", "p-ssy", "pu55y", "ass", "a55", "d*ck", "d-ck", "d1ck", "c*ck", "c-ck", "c0ck", "n*de", "n-de", "nud3", "p0rn", "p0rnography", "s3x", "s3xual", "b*tch", "b-tch", "b1tch", "wh0re", "wh-re", "sl*t", "sl-t", "sl00t",
+  // Spanish
+  "polla", "coño", "puto", "puta", "culo", "mierda", "joder", "follar", "verga", "pendejo", "culero", "sexo", "desnudo", "porno", "incesto", "violación", "pedófilo", "sodomía", "masturbarse", "eyacular", "coger", "chingar", "nalgas", "tetas", "pene", "testículos", "semen", 
+  // French
+  "putain", "con", "salaud", "connard", "enculé", "merci", "pénis", "testicules", "sperme", "masturbation", "baiser", "pornographie", "inceste", "viol", "pédophile", "sodomie", "éjaculation", "nudité", "nu", "érection", "fellation", "pédérastie", 
+  // German
+  "scheisse", "arsch", "fotze", "hurensoehne", "verdammt", "verflucht", "ficken", "nackt", "hoden", "pornographie", "inzest", "vergewaltigung", "paedophil", "ejakulation", "blasen", "wichsen", 
+  // Italian
+  "cazzo", "merda", "troia", "puttana", "bastardo", "maledetto", "nudo", "pornografia", "incesto", "stupro", "pedofilo", "sodomia", "masturbazione", "eiaculazione", "fellatio", "testicoli", 
+  // Portuguese
+  "porra", "buceta", "pau", "rola", "bunda", "testiculo", "esperma", "estupro", "masturbacao", "ejaculacao", "oral", "nudez", 
+  // Russian
+  "хуй", "пизда", "ебля", "блять", "мудак", "сука", "говно", "порно", "голый", "пенис", "яйца", "мастурбация", "инцест", "изнасилование", "педофил", "эякуляция", 
+  // Japanese
+  "ちんこ", "マンコ", "クソ", "セックス", "ポルノ", "裸", "陰茎", "睾丸", "精子", "手淫", "近親相姦", "強姦", "ペドフィリア", "肛門", "射精", "フェラチオ", 
+  // Chinese Simplified
+  "鸡巴", "逼", "操", "妈的", "性交", "色情", "裸", "阴茎", "睾丸", "精液", "手淫", "乱伦", "强奸", "恋童癖", "肛交", "射精", 
+  // Chinese Traditional
+  "雞巴", "媽的", "陰莖", "亂倫", "強姦", "戀童癖", 
+  // Korean
+  "씨발", "개같은", "병신", "자지", "보지", "섹스", "포르노", "나체", "음경", "고환", "정액", "자위", "근친상간", "강간", "소아성애", "항문", "사정", 
+  // Dutch
+  "klootzak", "kutje", "kankerziekte", "sperma", "masturbatie", "incest", "verkrachting", "pedofiel", "sodomie", "ejaculatie", "pijpen", 
+  // Swedish
+  "helvete", "jävla", "skit", "porr", "naken", "kuk", "balle", "våldtäkt", "pedofil", "sodomi", "utlösning", "fellatio", 
+  // Polish
+  "kurwa", "chuj", "gówno", "dziwka", "pornografia", "nagi", "penisem", "jajami", "masturbacja", "gwalt", "pedofil", "sodomia", "orgazm",
+  // Arabic
+  "قحبة", "نيك", "جنس", "عاهرة", "كس", "طيز", "زب", "تناكة", "مقروص", "عراة", "إباحي", "إباحية", "زنا", "غتصاب", "لواط", "جنس", "مجرد", "عاري", "عاريه", "ديوث", "شذوذ"];
 
 const PROGRAMMER_JOKES = [
   "Why don't programmers like nature? Too many bugs.",
@@ -30,9 +60,21 @@ function getRandomJoke(jokeArray) {
   return jokeArray[Math.floor(Math.random() * jokeArray.length)];
 }
 
+function normalizeText(text) {
+  // Remove common obfuscation characters: spaces, dots, dashes, underscores, numbers
+  return text
+    .toLowerCase()
+    .replace(/[\s\.\-_*@!0-9]/g, '')  // Remove spaces, dots, dashes, underscores, numbers, special chars
+    .replace(/[a-z]/g, match => match); // Keep only letters
+}
+
 function containsBannedKeyword(text) {
-  const lowerText = text.toLowerCase();
-  return BANNED_KEYWORDS.some(keyword => lowerText.includes(keyword));
+  const normalizedText = normalizeText(text);
+  const normalizedBanned = BANNED_KEYWORDS.map(keyword => normalizeText(keyword));
+  
+  return normalizedBanned.some(keyword => 
+    normalizedText.includes(keyword) && keyword.length > 1 // Prevent false positives on single chars
+  );
 }
 
 // ===== CLIENT =====
